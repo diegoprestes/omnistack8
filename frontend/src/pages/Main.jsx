@@ -33,7 +33,7 @@ export default function Main({ match }) {
       }
     });
 
-    setUsers(users.filter(user => user._id != id));
+    setUsers(users.filter(user => user._id !== id));
   }
 
   async function handleDislike(id) {
@@ -43,7 +43,7 @@ export default function Main({ match }) {
       }
     });
 
-    setUsers(users.filter(user => user._id != id));
+    setUsers(users.filter(user => user._id !== id));
   }
 
   return (
