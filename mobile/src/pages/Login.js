@@ -62,7 +62,7 @@ export default function Login({ navigation }) {
   )
 } 
 
-// 42:53
+// 1:05:04
 
 const styles = StyleSheet.create({
   container: {
