@@ -5,26 +5,26 @@ module.exports = {
     const { user } = req.headers;
     const { devId } = req.params;
 
-    const loggedDev = await Dev.findById(user);
-    const targetDev = await Dev.findById(devId);
+    try {
+      const loggedDev = await Dev.findById(user);
+      const targetDev = await Dev.findById(devId);
 
-    // console.log(targetDev);
-    // if (!targetDev) {
-    //   return res.status(400).json({ error: 'Dev not exists' });
-    // }
-
-    if (loggedDev.likes.includes(targetDev._id)) {
-      return res.status(400).json({error: 'Dev already liked'});
+      if (loggedDev.likes.includes(targetDev._id)) {
+        return res.status(400).json({error: 'Dev already liked'});
+      }
+  
+      if (targetDev.likes.includes(loggedDev._id)) {
+        console.log('deu match');
+      }
+  
+      loggedDev.likes.push(targetDev._id);
+  
+      await loggedDev.save();
+  
+      return res.json({ success: true });
+    } catch (error) {
+      console.log('Dev dont exist');
+      return res.status(400).json({ error: 'Dev dont exist' });
     }
-
-    if (targetDev.likes.includes(loggedDev._id)) {
-      console.log('deu match');
-    }
-
-    loggedDev.likes.push(targetDev._id);
-
-    await loggedDev.save();
-
-    return res.json({ success: true });
   }
 };
