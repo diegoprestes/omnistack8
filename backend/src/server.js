@@ -10,6 +10,7 @@ const io = require('socket.io')(server);
 
 io.on('connection', socket => {
   console.log('Nova conexao', socket.id);
+  // 6:36
 });
 
 const mongooseURL = 'mongodb+srv://diego:diego@flashprestesapi-tqbua.mongodb.net/omnistack8?retryWrites=true&w=majority';
