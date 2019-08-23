@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   SafeAreaView,
   View,
@@ -8,46 +9,85 @@ import {
   TouchableOpacity
 } from 'react-native';
 
+import api from '../services/api';
+
 import logo from '../assets/logo.png';
 import like from '../assets/like.png';
 import dislike from '../assets/dislike.png';
 
-export default function Main() {
+export default function Main({ navigation }) {
+  const id = navigation.getParam('user');
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    async function loadUsers() {
+      const response = await api.get('/devs', {
+        headers: {
+          user: id
+        }
+      });
+      
+      setUsers(response.data);
+    }
+
+    loadUsers();
+  }, [id]);
+
+  async function handleLike() {
+    const [user, ...rest] = users;
+    await api.post(`/devs/${user._id}/likes`, null, {
+      headers: {
+        user: id
+      }
+    });
+
+    setUsers(rest);
+  }
+
+  async function handleDislike() {
+    const [user, ...rest] = users;
+    await api.post(`/devs/${user._id}/dislikes`, null, {
+      headers: {
+        user: id
+      }
+    });
+
+    setUsers(rest);
+  }
+
+  async function handleLogout() {
+    AsyncStorage.clear();
+    navigation.navigate('Login');
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.logo} source={logo} />
+      <TouchableOpacity onPress={handleLogout}>
+        <Image style={styles.logo} source={logo} />
+      </TouchableOpacity>
 
       <View style={styles.cardsContainer}>
-        <View style={[styles.card, { zIndex: 3 }]}>
-          <Image style={styles.avatar} source={{ uri: 'https://avatars0.githubusercontent.com/u/9838872?s=64&v=4' }} />
-          <View style={styles.footer}>
-            <Text style={styles.name}>Diego</Text>
-            <Text style={styles.bio} numberOfLines={3}>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem Ipsum dolor sit amet Lorem ipsum dolor sit amet Dolor Ipsum solor amet jejij eij eae oeae u e</Text>
-          </View>
-        </View>
-      
-        <View style={[styles.card, { zIndex: 2 }]}>
-          <Image style={styles.avatar} source={{ uri: 'https://avatars0.githubusercontent.com/u/9838872?s=64&v=4' }} />
-          <View style={styles.footer}>
-            <Text style={styles.name}>Diego 2</Text>
-            <Text style={styles.bio} numberOfLines={3}>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem Ipsum dolor sit amet Lorem ipsum dolor sit amet Dolor Ipsum solor amet jejij eij eae oeae u e 2</Text>
-          </View>
-        </View>
-      
-        <View style={[styles.card, { zIndex: 1 }]}>
-          <Image style={styles.avatar} source={{ uri: 'https://avatars0.githubusercontent.com/u/9838872?s=64&v=4' }} />
-          <View style={styles.footer}>
-            <Text style={styles.name}>Diego 3</Text>
-            <Text style={styles.bio} numberOfLines={3}>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem Ipsum dolor sit amet Lorem ipsum dolor sit amet Dolor Ipsum solor amet jejij eij eae oeae u e 3</Text>
-          </View>
-        </View>
+        { users.length === 0
+          ? <Text style={styles.empty}>Acabou :(</Text>
+          : (
+            users.map((user, index) => (
+              <View key={user._id} style={[styles.card, { zIndex: users.length - index }]}>
+                <Image style={styles.avatar} source={{ uri: user.avatar }} />
+                <View style={styles.footer}>
+                  <Text style={styles.name}>{user.name}</Text>
+                  <Text style={styles.bio} numberOfLines={3}>{user.bio}</Text>
+                </View>
+              </View>
+            ))
+          )
+        }
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={handleDislike} style={styles.button}>
           <Image source={dislike} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity onPress={handleLike} style={styles.button}>
           <Image source={like} />
         </TouchableOpacity>
       </View>
@@ -64,6 +104,12 @@ const styles = StyleSheet.create({
   },
   logo: {
     marginTop: 30
+  },
+  empty: {
+    alignSelf: 'center',
+    color: '#999',
+    fontSize: 24,
+    fontWeight: 'bold'
   },
   cardsContainer: {
     flex: 1,

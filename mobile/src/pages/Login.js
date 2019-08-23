@@ -24,7 +24,7 @@ export default function Login({ navigation }) {
           console.log('has user', user);
           navigation.navigate('Main', { user });
         }
-      })
+      });
   }, []);
 
   async function handleLogin() {
@@ -32,11 +32,9 @@ export default function Login({ navigation }) {
 
     const { _id } = response.data;
 
-    console.log(_id);
-
     await AsyncStorage.setItem('user', _id);
 
-    navigation.navigate('Main', { _id });
+    navigation.navigate('Main', { user: _id });
   }
 
   return (
@@ -61,8 +59,6 @@ export default function Login({ navigation }) {
     </KeyboardAvoidingView>
   )
 } 
-
-// 1:05:04
 
 const styles = StyleSheet.create({
   container: {
