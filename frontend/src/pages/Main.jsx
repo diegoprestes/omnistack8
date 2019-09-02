@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { Link } from 'react-router-dom';
 
 import api from '../services/api';
@@ -24,6 +25,29 @@ export default function Main({ match }) {
     }
 
     loadUsers();
+  }, [match.params.id]);
+
+  useEffect(() => {
+    const socket = io('http://localhost:3333', {
+      query: { user: match.params.id }
+    });
+
+    socket.on('match', dev => {
+      console.log('Match: ', dev);
+      // 23:27
+    });
+
+    // socket io how to use examples
+    // socket.on('world', message => {
+    //   console.log('Received: ', message);
+    // });
+
+    // setTimeout(() => {
+    //   socket.emit('hello', {
+    //     message: 'Send to backend'
+    //   });
+    // }, 3000);
+
   }, [match.params.id]);
 
   async function handleLike(id) {
